@@ -3,21 +3,28 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { useRouter } from "next/navigation"
 
 interface TemplateCardProps {
+  id: string
   title: string
   description: string
   image: string
   category: string
   featured?: boolean
+  onSelect: (id: string) => void
 }
 
-export function TemplateCard({ title, description, image, category, featured = false }: TemplateCardProps) {
-  const router = useRouter()
-
+export function TemplateCard({
+  id,
+  title,
+  description,
+  image,
+  category,
+  featured = false,
+  onSelect,
+}: TemplateCardProps) {
   const handleSelect = () => {
-    router.push("/dashboard/editor")
+    onSelect(id)
   }
 
   return (

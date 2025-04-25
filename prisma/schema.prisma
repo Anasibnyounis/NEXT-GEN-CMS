@@ -1,0 +1,155 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  websites      Website[]
+  sessions      Session[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Website {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  status      Status    @default(DRAFT)
+  url         String?
+  theme       String    @default("default")
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages       Page[]
+  products    Product[]
+  posts       Post[]
+  forms       Form[]
+  plugins     Plugin[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String
+  description String?
+  content     Json?
+  isHome      Boolean  @default(false)
+  websiteId   String
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([websiteId, slug])
+}
+
+model Post {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String
+  excerpt     String?
+  content     Json?
+  published   Boolean    @default(false)
+  websiteId   String
+  website     Website    @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  categories  Category[]
+
+  @@unique([websiteId, slug])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String
+  posts     Post[]
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String
+  description String?
+  price       Decimal    @default(0)
+  images      String[]
+  inventory   Int        @default(0)
+  published   Boolean    @default(false)
+  websiteId   String
+  website     Website    @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  categories  Category[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([websiteId, slug])
+}
+
+model Form {
+  id          String          @id @default(cuid())
+  name        String
+  fields      Json
+  websiteId   String
+  website     Website         @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  submissions FormSubmission[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model FormSubmission {
+  id        String   @id @default(cuid())
+  data      Json
+  formId    String
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Plugin {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  enabled     Boolean  @default(true)
+  config      Json?
+  websiteId   String
+  website     Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([websiteId, name])
+}
+
+enum Role {
+  USER
+  ADMIN
+  EDITOR
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}

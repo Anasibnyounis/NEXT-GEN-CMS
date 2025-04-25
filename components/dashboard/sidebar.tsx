@@ -5,17 +5,18 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Layers,
-  LayoutGrid,
-  FileText,
-  ShoppingCart,
-  Users,
-  Settings,
-  HelpCircle,
-  ChevronDown,
-  PlusCircle,
-} from "lucide-react"
+import { Home, Settings, FileText, ShoppingCart, Users, HelpCircle, ChevronDown } from "lucide-react"
+// import {
+//   Layers,
+//   LayoutGrid,
+//   FileText,
+//   ShoppingCart,
+//   Users,
+//   Settings,
+//   HelpCircle,
+//   ChevronDown,
+//   PlusCircle,
+// } from "lucide-react"
 
 export default function DashboardSidebar() {
   const pathname = usePathname()
@@ -25,7 +26,7 @@ export default function DashboardSidebar() {
       <div className="flex h-full flex-col">
         <div className="flex h-14 items-center border-b px-4">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-            <Layers className="h-6 w-6" />
+            <Home className="h-6 w-6" />
             <span>ModernCMS</span>
           </Link>
         </div>
@@ -36,7 +37,7 @@ export default function DashboardSidebar() {
                 variant="ghost"
                 className={cn("justify-start gap-2 h-9", pathname === "/dashboard" && "bg-muted")}
               >
-                <LayoutGrid className="h-4 w-4" />
+                <Home className="h-4 w-4" />
                 Dashboard
               </Button>
             </Link>
@@ -45,10 +46,10 @@ export default function DashboardSidebar() {
               <div className="flex items-center justify-between px-3 py-1.5 text-xs font-medium text-muted-foreground">
                 <span>Websites</span>
                 <Link href="/dashboard/sites/new">
-                  <Button variant="ghost" size="icon" className="h-5 w-5">
+                  {/* <Button variant="ghost" size="icon" className="h-5 w-5">
                     <PlusCircle className="h-3.5 w-3.5" />
                     <span className="sr-only">New website</span>
-                  </Button>
+                  </Button> */}
                 </Link>
               </div>
               <div className="grid gap-1 pt-1">

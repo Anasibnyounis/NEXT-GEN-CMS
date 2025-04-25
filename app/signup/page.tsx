@@ -4,27 +4,53 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Layers } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { registerUser } from "@/actions/auth"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function SignupPage() {
-  const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string[]>>({})
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
+    setErrors({})
 
-    // Simulate signup
-    setTimeout(() => {
+    const formData = new FormData(e.currentTarget)
+
+    if (formData.get("password") !== formData.get("confirmPassword")) {
+      setErrors({ confirmPassword: ["Passwords do not match"] })
       setIsLoading(false)
-      router.push("/dashboard")
-    }, 1000)
+      return
+    }
+
+    try {
+      const result = await registerUser(formData)
+
+      if (result?.error) {
+        setErrors(result.error)
+        toast({
+          title: "Registration failed",
+          description: "Please check the form for errors.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "An error occurred",
+        description: "Please try again later.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -44,26 +70,28 @@ export default function SignupPage() {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First name</Label>
-                  <Input id="firstName" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last name</Label>
-                  <Input id="lastName" required />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Full name</Label>
+                <Input id="name" name="name" required />
+                {errors.name && <p className="text-sm text-destructive">{errors.name[0]}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="name@example.com" required />
+                <Input id="email" name="email" type="email" placeholder="name@example.com" required />
+                {errors.email && <p className="text-sm text-destructive">{errors.email[0]}</p>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required />
+                <Input id="password" name="password" type="password" required />
+                {errors.password && <p className="text-sm text-destructive">{errors.password[0]}</p>}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Input id="confirmPassword" name="confirmPassword" type="password" required />
+                {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword[0]}</p>}
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox id="terms" required />
+                <Checkbox id="terms" name="terms" required />
                 <Label htmlFor="terms" className="text-sm font-normal">
                   I agree to the{" "}
                   <Link href="/terms" className="text-primary hover:underline">
