@@ -10,6 +10,18 @@ import { updateWebsite } from "@/actions/websites"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import Image from "next/image"
 
+// Define server actions separately
+async function updateWebsiteAction(siteId: string, formData: FormData) {
+  "use server"
+  return await updateWebsite(siteId, formData)
+}
+
+async function updateThemeAction(siteId: string, formData: FormData) {
+  "use server"
+  const themeId = formData.get("themeId") as string
+  return await updateWebsiteTheme(siteId, themeId)
+}
+
 export default async function SettingsPage({ params }: { params: { siteId: string } }) {
   const { siteId } = params
   const website = await getWebsiteById(siteId)
@@ -42,8 +54,7 @@ export default async function SettingsPage({ params }: { params: { siteId: strin
             <CardContent>
               <form
                 action={async (formData) => {
-                  "use server"
-                  await updateWebsite(siteId, formData)
+                  await updateWebsiteAction(siteId, formData)
                 }}
                 className="space-y-4"
               >
@@ -74,9 +85,7 @@ export default async function SettingsPage({ params }: { params: { siteId: strin
             <CardContent>
               <form
                 action={async (formData) => {
-                  "use server"
-                  const themeId = formData.get("themeId") as string
-                  await updateWebsiteTheme(siteId, themeId)
+                  await updateThemeAction(siteId, formData)
                 }}
                 className="space-y-4"
               >
